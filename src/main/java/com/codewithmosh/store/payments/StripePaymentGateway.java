@@ -85,7 +85,7 @@ public class StripePaymentGateway implements PaymentGateway {
                 () -> new PaymentException("Couldn't deserialize the Stripe event. check the SDK and API version")
         );
         var paymentIntent = (PaymentIntent) stripeObject;
-        return Long.valueOf(paymentIntent.getMetadata().get("order_id"));
+        return Long.parseLong(paymentIntent.getMetadata().get("order_id"));
 
     }
 
