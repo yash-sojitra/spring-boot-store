@@ -1,0 +1,51 @@
+package com.codewithmosh.store.payments;
+
+import com.codewithmosh.store.dtos.ErrorDto;
+import com.codewithmosh.store.exceptions.CartEmptyException;
+import com.codewithmosh.store.exceptions.CartNotFoundException;
+import com.codewithmosh.store.repositories.OrderRepository;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/checkout")
+public class CheckoutController {
+
+    private final CheckoutService checkoutService;
+    private final OrderRepository orderRepository;
+
+
+
+    @PostMapping
+    public CheckoutResponse checkout(
+            @Valid @RequestBody CheckoutRequest request
+    ) {
+        return checkoutService.checkout(request.getCartId());
+    }
+
+    @PostMapping("/webhook")
+    public void handleWebhook(
+            @RequestHeader Map<String, String> headers,
+            @RequestBody String payload
+    ) {
+        checkoutService.handleWebhookEvent(new WebhookRequest(headers, payload));
+    }
+
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<?> handlingPaymentException(PaymentException ex) {
+        return ResponseEntity
+                .status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+                .body(new ErrorDto("Error creating a checkout session"));
+    }
+
+    @ExceptionHandler({CartNotFoundException.class, CartEmptyException.class})
+    public ResponseEntity<ErrorDto> handlingNoCartAndCartEmptyException(Exception ex) {
+        return ResponseEntity.badRequest().body(new ErrorDto(ex.getMessage()));
+    }
+}

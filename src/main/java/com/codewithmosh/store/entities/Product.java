@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@ToString(exclude = "category")
 @Table(name = "products")
 public class Product {
     @Id

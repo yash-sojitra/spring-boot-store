@@ -1,4 +1,4 @@
-CREATE TABLE addresses
+ CREATE TABLE addresses
 (
     id      BIGINT AUTO_INCREMENT NOT NULL,
     street  VARCHAR(255) NOT NULL,
